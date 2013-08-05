@@ -26,26 +26,7 @@ class nodejs::params {
   }
 
   $npm_proxy = ''
-
-  $config_dir = $::operatingsystem ? {
-    default => '/etc/nodejs',
-  }
-
-  $config_file = $::operatingsystem ? {
-    default => '/etc/nodejs/nodejs.conf',
-  }
-
-  $config_file_mode = $::operatingsystem ? {
-    default => '0644',
-  }
-
-  $config_file_owner = $::operatingsystem ? {
-    default => 'root',
-  }
-
-  $config_file_group = $::operatingsystem ? {
-    default => 'root',
-  }
+  $npm_local_dir = '/opt/razor'
 
   # General Settings
   $my_class = ''
@@ -58,5 +39,4 @@ class nodejs::params {
   $absent = false
   $audit_only = false
   $noops = false
-
 }

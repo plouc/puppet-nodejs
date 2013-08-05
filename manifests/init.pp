@@ -13,29 +13,6 @@
 #   If defined, nodejs class will automatically "include $my_class"
 #   Can be defined also by the (top scope) variable $nodejs_myclass
 #
-# [*source*]
-#   Sets the content of source parameter for main configuration file
-#   If defined, nodejs main config file will have the param: source => $source
-#   Can be defined also by the (top scope) variable $nodejs_source
-#
-# [*source_dir*]
-#   If defined, the whole nodejs configuration directory content is retrieved
-#   recursively from the specified source
-#   (source => $source_dir , recurse => true)
-#   Can be defined also by the (top scope) variable $nodejs_source_dir
-#
-# [*source_dir_purge*]
-#   If set to true (default false) the existing configuration directory is
-#   mirrored with the content retrieved from source_dir
-#   (source => $source_dir , recurse => true , purge => true)
-#   Can be defined also by the (top scope) variable $nodejs_source_dir_purge
-#
-# [*template*]
-#   Sets the path to the template to use as content for main configuration file
-#   If defined, nodejs main config file has: content => content("$template")
-#   Note source and template parameters are mutually exclusive: don't use both
-#   Can be defined also by the (top scope) variable $nodejs_template
-#
 # [*options*]
 #   An hash of custom options to be used in templates for arbitrary settings.
 #   Can be defined also by the (top scope) variable $nodejs_options
@@ -78,12 +55,6 @@
 #   If npm uses a proxy, specify it here.
 #   Default: empty
 #
-# [*config_dir*]
-#   Main configuration directory. Used by puppi
-#
-# [*config_file*]
-#   Main configuration file path
-#
 # == Examples
 #
 # You can use this class in 2 ways:
@@ -95,10 +66,6 @@
 #
 class nodejs (
   $my_class            = params_lookup( 'my_class' ),
-  $source              = params_lookup( 'source' ),
-  $source_dir          = params_lookup( 'source_dir' ),
-  $source_dir_purge    = params_lookup( 'source_dir_purge' ),
-  $template            = params_lookup( 'template' ),
   $options             = params_lookup( 'options' ),
   $version             = params_lookup( 'version' ),
   $absent              = params_lookup( 'absent' ),
@@ -106,16 +73,10 @@ class nodejs (
   $noops               = params_lookup( 'noops' ),
   $nodejs_package      = params_lookup( 'nodejs_package' ),
   $npm_package         = params_lookup( 'npm_package' ),
+  $npm_local_dir       = params_lookup( 'npm_local_dir' ),
   $npm_proxy           = params_lookup( 'npm_proxy' ),
-  $config_dir          = params_lookup( 'config_dir' ),
-  $config_file         = params_lookup( 'config_file' )
   ) inherits nodejs::params {
 
-  $config_file_mode=$nodejs::params::config_file_mode
-  $config_file_owner=$nodejs::params::config_file_owner
-  $config_file_group=$nodejs::params::config_file_group
-
-  $bool_source_dir_purge=any2bool($source_dir_purge)
   $bool_absent=any2bool($absent)
   $bool_audit_only=any2bool($audit_only)
   $bool_noops=any2bool($noops)
@@ -141,16 +102,6 @@ class nodejs (
     false => true,
   }
 
-  $manage_file_source = $nodejs::source ? {
-    ''        => undef,
-    default   => $nodejs::source,
-  }
-
-  $manage_file_content = $nodejs::template ? {
-    ''        => undef,
-    default   => template($nodejs::template),
-  }
-
   ### Managed resources
   package { $nodejs::nodejs_package:
     ensure  => $nodejs::manage_package,
@@ -169,37 +120,6 @@ class nodejs (
       require => Package[$nodejs::npm_package],
     }
   }
-
-  file { 'nodejs.conf':
-    ensure  => $nodejs::manage_file,
-    path    => $nodejs::config_file,
-    mode    => $nodejs::config_file_mode,
-    owner   => $nodejs::config_file_owner,
-    group   => $nodejs::config_file_group,
-    require => Package[$nodejs::nodejs_package],
-    source  => $nodejs::manage_file_source,
-    content => $nodejs::manage_file_content,
-    replace => $nodejs::manage_file_replace,
-    audit   => $nodejs::manage_audit,
-    noop    => $nodejs::bool_noops,
-  }
-
-  # The whole nodejs configuration directory can be recursively overriden
-  if $nodejs::source_dir {
-    file { 'nodejs.dir':
-      ensure  => directory,
-      path    => $nodejs::config_dir,
-      require => Package[$nodejs::nodejs_package],
-      source  => $nodejs::source_dir,
-      recurse => true,
-      purge   => $nodejs::bool_source_dir_purge,
-      force   => $nodejs::bool_source_dir_purge,
-      replace => $nodejs::manage_file_replace,
-      audit   => $nodejs::manage_audit,
-      noop    => $nodejs::bool_noops,
-    }
-  }
-
 
   ### Include custom class if $my_class is set
   if $nodejs::my_class {
