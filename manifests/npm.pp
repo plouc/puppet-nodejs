@@ -23,7 +23,7 @@ define nodejs::npm (
   $source      = undef,
   $install_opt = undef,
   $remove_opt  = undef,
-  $ensure      = present,
+  $ensure      = present
 ) {
   include nodejs
 
