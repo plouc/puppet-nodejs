@@ -74,7 +74,7 @@ class nodejs (
   $nodejs_package      = params_lookup( 'nodejs_package' ),
   $npm_package         = params_lookup( 'npm_package' ),
   $npm_local_dir       = params_lookup( 'npm_local_dir' ),
-  $npm_proxy           = params_lookup( 'npm_proxy' ),
+  $npm_proxy           = params_lookup( 'npm_proxy' )
   ) inherits nodejs::params {
 
   $bool_absent=any2bool($absent)
