@@ -24,6 +24,9 @@ class nodejs::params {
   $npm_package = $::operatingsystem ? {
     default => 'npm',
   }
+
+  $npm_proxy = ''
+
   $config_dir = $::operatingsystem ? {
     default => '/etc/nodejs',
   }

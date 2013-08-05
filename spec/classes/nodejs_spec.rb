@@ -16,6 +16,26 @@ describe 'nodejs' do
     it { should contain_package('nodejs').with_ensure('1.0.42') }
   end
 
+  describe 'Test deploying with proxy' do
+    let :facts do
+      {
+        :operatingsystem => 'Ubuntu',
+        :lsbdistcodename => 'edgy',
+      }
+    end
+
+    let :params do
+      { :npm_proxy => 'http://proxy.puppetlabs.lan:80/' }
+    end
+
+    it { should contain_package('npm').with_name('npm') }
+    it { should contain_exec('npm_proxy').with({
+      'command' => 'npm config set proxy http://proxy.puppetlabs.lan:80/',
+      'require' => 'Package[npm]',
+    }) }
+    it { should_not contain_package('nodejs-stable-release') }
+  end
+
   describe 'Test decommissioning - absent' do
     let(:params) { {:absent => true } }
     it 'should remove Package[nodejs]' do should contain_package('nodejs').with_ensure('absent') end 

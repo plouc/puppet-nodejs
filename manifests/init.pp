@@ -74,6 +74,10 @@
 # [*npm_package*]
 #   The name of npm package
 #
+# [*npm_proxy*]
+#   If npm uses a proxy, specify it here.
+#   Default: empty
+#
 # [*config_dir*]
 #   Main configuration directory. Used by puppi
 #
@@ -102,6 +106,7 @@ class nodejs (
   $noops               = params_lookup( 'noops' ),
   $nodejs_package      = params_lookup( 'nodejs_package' ),
   $npm_package         = params_lookup( 'npm_package' ),
+  $npm_proxy           = params_lookup( 'npm_proxy' ),
   $config_dir          = params_lookup( 'config_dir' ),
   $config_file         = params_lookup( 'config_file' )
   ) inherits nodejs::params {
@@ -155,6 +160,14 @@ class nodejs (
   package { $nodejs::npm_package:
     ensure  => $nodejs::manage_package,
     noop    => $nodejs::bool_noops,
+  }
+
+  if $npm_proxy != '' {
+    exec { 'npm_proxy':
+      command => "npm config set proxy ${nodejs::npm_proxy}",
+      path    => $::path,
+      require => Package[$nodejs::npm_package],
+    }
   }
 
   file { 'nodejs.conf':
