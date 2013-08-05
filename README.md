@@ -3,7 +3,7 @@
 This is a Puppet module that installs nodejs and npm.
 
 Based on [puppetlabs-nodejs module](https://github.com/puppetlabs/puppetlabs-nodejs) but modified
-to the follow Example42 "NextGen" modules' format.
+to follow Example42 "NextGen" modules' design.
 
 Based on Example42 layouts by Alessandro Franceschi / Lab42
 
@@ -46,32 +46,11 @@ This module requires the presence of Example42 Puppi module in your modulepath.
           noops => true
         }
 
-* Use custom sources for main config file 
-
-        class { 'nodejs':
-          source => [ "puppet:///modules/example42/nodejs/nodejs.conf-${hostname}" , "puppet:///modules/example42/nodejs/nodejs.conf" ], 
-        }
-
-
-* Use custom source directory for the whole configuration dir
-
-        class { 'nodejs':
-          source_dir       => 'puppet:///modules/example42/nodejs/conf/',
-          source_dir_purge => false, # Set to true to purge any existing file not present in $source_dir
-        }
-
-* Use custom template for main config file. Note that template and source arguments are alternative. 
-
-        class { 'nodejs':
-          template => 'example42/nodejs/nodejs.conf.erb',
-        }
-
 * Automatically include a custom subclass
 
         class { 'nodejs':
           my_class => 'example42::my_nodejs',
         }
-
 
 
 ### npm package
@@ -115,13 +94,13 @@ If you don't specify *pkg_name*, *title* becomes the name of the package to inst
 
 install_dir defaults to $npm_local_dir (/opt/razor) if not specified.
 
-So, a shortest case to write the example above should be:
+So, a shortest way to write the previous example, is:
 
     nodejs::npm { 'express':
       version     => '2.5.9',
     }
 
-See define file for parameters description.
+See npm define file for parameters description.
 
 ## TESTING
 [![Build Status](https://travis-ci.org/netmanagers/puppet-nodejs.png?branch=master)](https://travis-ci.org/netmanagers/puppet-nodejs)
