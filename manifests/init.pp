@@ -101,22 +101,68 @@ class nodejs (
     false => true,
   }
 
-  ### Managed resources
-  package { $nodejs::nodejs_package:
-    ensure  => $nodejs::manage_package,
-    noop    => $nodejs::noops,
-  }
+  if $::operatingsystem == "Debian" and $::lsbdistcodename == "squeeze" {
 
-  package { $nodejs::npm_package:
-    ensure  => $nodejs::manage_package,
-    noop    => $nodejs::noops,
-  }
+    package { "git":
+      ensure => installed,
+      noop   => $nodejs::noops,
+    }
 
-  if $npm_proxy != '' {
-    exec { 'npm_proxy':
-      command => "npm config set proxy ${nodejs::npm_proxy}",
-      path    => $::path,
-      require => Package[$nodejs::npm_package],
+    package { "python":
+      ensure => installed,
+      noop   => $nodejs::noops, 
+    }
+
+    package { "build-essential":
+      ensure => installed,
+      noop   => $nodejs::noops,
+    }
+
+    vcsrepo { "/tmp/joyent-node":
+      ensure   => $nodejs::manage_package,
+      provider => "git",
+      source   => "git://github.com/joyent/node.git",
+      revision => "v0.10.24-release",
+      require  => Package["git"],
+    }
+
+    exec { "build nodejs":
+      cwd     => "/tmp/joyent-node",
+      command => "/tmp/joyent-node/configure && make && make install",
+      creates => "/usr/local/bin/node",
+      require => [
+        Package["python"],
+        Package["build-essential"],
+        Vcsrepo["/tmp/joyent-node"]
+      ],
+    }
+
+    if $npm_proxy != '' {
+      exec { 'npm_proxy':
+        command => "npm config set proxy ${nodejs::npm_proxy}",
+        path    => $::path,
+        require => Exec["build nodejs"],
+      }
+    }
+  }
+  else {
+    ### Managed resources
+    package { $nodejs::nodejs_package:
+      ensure  => $nodejs::manage_package,
+      noop    => $nodejs::noops,
+    }
+  
+    package { $nodejs::npm_package:
+      ensure  => $nodejs::manage_package,
+      noop    => $nodejs::noops,
+    }
+  
+    if $npm_proxy != '' {
+      exec { 'npm_proxy':
+        command => "npm config set proxy ${nodejs::npm_proxy}",
+        path    => $::path,
+        require => Package[$nodejs::npm_package],
+      }
     }
   }
 

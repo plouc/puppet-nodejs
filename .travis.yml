@@ -18,4 +18,4 @@ matrix:
 gemfile: .gemfile
 notifications:
   email:
-    - javier@netmanagers.com.ar
+    - benitteraphael@gmail.com
