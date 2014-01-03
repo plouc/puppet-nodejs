@@ -19,3 +19,6 @@ gemfile: .gemfile
 notifications:
   email:
     - benitteraphael@gmail.com
+branches:
+  only:
+    - debian-squeeze-support
