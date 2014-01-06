@@ -103,19 +103,25 @@ class nodejs (
 
   if $::operatingsystem == "Debian" and $::lsbdistcodename == "squeeze" {
 
-    package { "git":
-      ensure => installed,
-      noop   => $nodejs::noops,
+    if(!defined(Package["git"])) {
+      package { "git":
+        ensure => installed,
+        noop   => $nodejs::noops,
+      }
     }
 
-    package { "python":
-      ensure => installed,
-      noop   => $nodejs::noops, 
+    if(!defined(Package["python"])) {
+      package { "python":
+        ensure => installed,
+        noop   => $nodejs::noops,
+      }
     }
 
-    package { "build-essential":
-      ensure => installed,
-      noop   => $nodejs::noops,
+    if(!defined(Package["build-essential"])) {
+      package { "build-essential":
+        ensure => installed,
+        noop   => $nodejs::noops,
+      }
     }
 
     vcsrepo { "/tmp/joyent-node":
